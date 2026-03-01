@@ -1,0 +1,11 @@
+# Node.js 依赖包（必加，忽略体积大的文件夹）
+node_modules/
+# 环境变量文件（存数据库密码等敏感信息，不上传）
+.env
+# 日志文件（无用，不上传）
+*.log
+# npm 缓存文件
+npm-debug.log*
+# Windows 系统临时文件
+Thumbs.db
+.DS_Store
