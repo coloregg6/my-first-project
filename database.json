@@ -1,0 +1,26 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "role": "girl",
+      "pin": "1125",
+      "name": "SN",
+      "avatar": "👩🏻"
+    },
+    {
+      "id": 2,
+      "role": "boy",
+      "pin": "1125",
+      "name": "Mainland",
+      "avatar": "🧑🏻‍💻"
+    }
+  ],
+  "settings": {
+    "start_date": "2022-03-01",
+    "resolved_count": "0"
+  },
+  "pokes": [],
+  "topics": [],
+  "capsules": [],
+  "achievements": []
+}

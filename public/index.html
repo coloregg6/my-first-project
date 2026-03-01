@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Secret Zone - 灵魂补丁版</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+.fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+@keyframes fadeInUp {
+from { opacity: 0; transform: translateY(20px); }
+to { opacity: 1; transform: translateY(0); }
+}
+.glass-card, .glass-input {
+background: rgba(255, 255, 255, 0.1);
+backdrop-filter: blur(16px);
+-webkit-backdrop-filter: blur(16px);
+border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.badge-glow { animation: glow 2s infinite alternate; }
+@keyframes glow {
+from { box-shadow: 0 0 10px rgba(255, 138, 101, 0.2); }
+to { box-shadow: 0 0 20px rgba(255, 138, 101, 0.6); }
+}
+.polaroid {
+background: white; padding: 10px 10px 25px 10px;
+box-shadow: 0 4px 15px rgba(0,0,0,0.2); transform: rotate(-2deg);
+}
+.heart-rain {
+position: fixed; top: -50px;
+pointer-events: none; z-index: 9999;
+animation: heartFall 3s linear forwards;
+}
+@keyframes heartFall {
+0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+}
+.home-time-card {
+background: linear-gradient(135deg, rgba(26, 35, 126, 0.6) 0%, rgba(255, 138, 101, 0.6) 100%);
+border: 1px solid rgba(255,255,255,0.2);
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
+</style>
+</head>
+<body class="bg-gradient-to-b from-[#1A237E] to-[#FF8A65] min-h-screen font-sans antialiased text-white selection:bg-white selection:text-[#FF8A65] flex flex-col items-center justify-center transition-all duration-500" id="body-container">
+
+<div id="page-login" class="w-full max-w-5xl flex flex-col items-center">
+    <div class="text-center mb-16 fade-in-up">
+        <h1 class="text-white text-3xl font-light tracking-[0.2em] mb-2">OUR SECRET ZONE</h1>
+        <p class="text-white/70 text-sm tracking-widest">请选择你的专属通道</p>
+    </div>
+    <div class="flex gap-16 mb-12 fade-in-up" style="animation-delay: 0.2s;">
+        <div class="flex flex-col items-center cursor-pointer group" onclick="selectRole('girl')">
+            <div id="girl-avatar" class="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center shadow-lg backdrop-blur-md transition-all duration-300 border-2 border-transparent hover:scale-105">
+                <span class="text-4xl">👩🏻</span>
+            </div>
+            <span class="text-white/80 mt-4 text-sm tracking-widest">Her (SN)</span>
+        </div>
+        <div class="flex flex-col items-center cursor-pointer group" onclick="selectRole('boy')">
+            <div id="boy-avatar" class="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center shadow-lg backdrop-blur-md transition-all duration-300 border-2 border-transparent hover:scale-105">
+                <span class="text-4xl">🧑🏻‍💻</span>
+            </div>
+            <span class="text-white/80 mt-4 text-sm tracking-widest">Him (Mainland)</span>
+        </div>
+    </div>
+    <div id="login-form" class="hidden flex-col items-center fade-in-up relative">
+        <div class="absolute -top-12 bg-[#FF8A65] text-xs px-3 py-1 rounded-full text-white shadow-md">默认密码是 1125 哦，快点开！</div>
+        <p id="role-greeting" class="text-white/90 mb-6 text-lg font-light tracking-wide"></p>
+        <input type="password" id="pin-input" maxlength="4" placeholder="输入4位暗号" class="glass-input text-center text-2xl tracking-[0.8em] p-4 rounded-2xl text-white outline-none w-64 shadow-lg focus:ring-2 focus:ring-white/50" />
+        <button onclick="handleLogin()" class="mt-8 px-10 py-3 bg-white text-[#1A237E] font-medium rounded-full shadow-lg transition-all tracking-widest text-sm hover:scale-105">开启任意门 🚀</button>
+    </div>
+</div>
+
+<div id="page-main" class="hidden w-full max-w-5xl p-4 md:p-8 flex flex-col min-h-screen animate-fade-in-up">
+    
+    <nav class="w-full flex justify-between items-center mb-12">
+        <div class="text-xl font-light tracking-[0.2em]">OUR ZONE</div>
+        <div class="flex gap-6 text-sm tracking-wider text-white/70" id="nav-links">
+            <span onclick="switchTab('home')" id="nav-home" class="cursor-pointer text-white border-b-2 border-white pb-1 transition-all">🏠 首页</span>
+            <span onclick="switchTab('hub')" id="nav-hub" class="cursor-pointer hover:text-white transition-all text-white/70">💌 中转站</span>
+            <span onclick="switchTab('darkroom')" id="nav-darkroom" class="cursor-pointer hover:text-white transition-all text-white/70">🎁 暗房</span>
+            <span onclick="switchTab('achievements')" id="nav-achievements" class="cursor-pointer hover:text-white transition-all text-white/70">🏆 成就</span>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-xl shadow-lg" id="user-avatar-small">👩🏻</div>
+    </nav>
+
+    <div class="flex-1 w-full relative">
+        
+        <div id="view-home" class="grid grid-cols-1 md:grid-cols-12 gap-8 fade-in-up">
+            <div class="md:col-span-5 home-time-card rounded-3xl p-8 h-fit text-center flex flex-col items-center justify-center shadow-xl">
+                <span class="text-xs text-white/70 tracking-widest">我们在一起的第</span>
+                <p class="text-6xl font-extrabold text-white mt-3 mb-2 tracking-tighter" id="time-together">0</p>
+                <span class="text-sm text-white/80 tracking-widest">天</span>
+            </div>
+            
+            <div class="md:col-span-7 glass-card rounded-3xl p-12 flex flex-col items-center justify-center h-[320px] shadow-lg relative overflow-hidden group">
+                <div class="absolute -top-10 -left-10 text-[100px] opacity-10 group-hover:rotate-12 transition-transform duration-300">💖</div>
+                
+                <button onclick="sendMissYou()" class="w-28 h-28 rounded-full bg-white/10 flex items-center justify-center text-5xl shadow-lg border-2 border-white/30 hover:bg-white/30 hover:scale-110 transition-all badge-glow relative z-10">👆</button>
+                
+                <p class="text-base mt-8 text-white tracking-widest font-light relative z-10">我想你了，戳一戳 👉 发射信号</p>
+                <p class="text-xs text-white/50 mt-2 relative z-10" id="poke-hint">(对方会收到满屏爱心惊喜!)</p>
+            </div>
+        </div>
+
+        <div id="view-hub" class="hidden grid grid-cols-1 md:grid-cols-12 gap-8 fade-in-up">
+            <div class="md:col-span-5 glass-card rounded-3xl p-8 h-fit">
+                <h2 class="text-2xl font-light mb-2 tracking-wide">提出新议题 ✍️</h2>
+                <p class="text-white/60 text-xs mb-8">有什么不开心，先存放在这里，周末我们慢慢聊 <textarea id="topic-content" rows="4" placeholder="比如：你昨天晚上。</p>
+               又没回我消息..." class="w-full bg-black/10 border border-white/20 rounded-xl p-4 text-sm text-white outline-none mb-6 resize-none"></textarea>
+                <select id="topic-priority" class="w-full bg-black/10 border border-white/20 rounded-xl p-3 text-sm text-white outline-none mb-6">
+                    <option value="normal">⚖️ 普通议题</option>
+                    <option value="urgent">🥺 急需顺毛</option>
+                    <option value="critical">⚠️ 周末开庭</option>
+                </select>
+                <button onclick="addTopic()" class="w-full py-3 bg-white text-[#1A237E] font-medium rounded-xl shadow-lg hover:bg-opacity-90 transition-all">封存工单，等待讨论 ✉️</button>
+            </div>
+            <div class="md:col-span-7 glass-card rounded-3xl p-8 flex flex-col h-[500px]">
+                <h2 class="text-2xl font-light tracking-wide mb-6">待讨论列表 📝</h2>
+                <div id="topics-list" class="flex-1 overflow-y-auto space-y-4 pr-2">
+                </div>
+            </div>
+        </div>
+
+        <div id="view-darkroom" class="hidden grid grid-cols-1 md:grid-cols-12 gap-8 fade-in-up">
+            <div class="md:col-span-5 glass-card rounded-3xl p-8 h-fit">
+                <h2 class="text-2xl font-light mb-2 tracking-wide">存入时光胶囊 🎞️</h2>
+                <div class="w-full h-32 border-2 border-dashed border-white/30 rounded-xl flex items-center justify-center mb-6 cursor-pointer hover:bg-white/5 transition-all" onclick="document.getElementById('capsule-image').click()">
+                    <span class="text-3xl" id="capsule-image-preview">📷</span>
+                    <input type="file" id="capsule-image" class="hidden" accept="image/*" onchange="previewImage(this)">
+                </div>
+                <textarea id="capsule-content" rows="3" placeholder="留给他的情话..." class="w-full bg-black/10 border border-white/20 rounded-xl p-4 text-sm text-white outline-none mb-6 resize-none"></textarea>
+                <div class="mb-6">
+                    <label class="text-xs text-white/70 mb-2 block">解锁时间</label>
+                    <input type="datetime-local" id="capsule-unlock" class="w-full bg-black/10 border border-white/20 rounded-xl p-3 text-sm text-white outline-none">
+                </div>
+                <button onclick="addCapsule()" class="w-full py-3 bg-[#FF8A65] text-white rounded-xl shadow-lg hover:bg-[#ff7a50] transition-all">封存惊喜 🔒</button>
+            </div>
+            <div class="md:col-span-7 glass-card rounded-3xl p-8 h-[500px] flex flex-col">
+                <h2 class="text-2xl font-light tracking-wide mb-6">已存入的浪漫 💌</h2>
+                <div id="capsules-grid" class="grid grid-cols-2 gap-6 overflow-y-auto">
+                </div>
+            </div>
+        </div>
+
+        <div id="view-achievements" class="hidden flex flex-col fade-in-up">
+            <div class="glass-card rounded-3xl p-8 mb-8 flex justify-between items-center relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 text-[100px] opacity-10">🏅</div>
+                <div><h2 class="text-3xl font-light mb-2 tracking-wide">回忆与和好墙 ✨</h2><p class="text-white/70 text-sm tracking-wide">每一次争吵后的拥抱，都让我们靠得更近。</p></div>
+                <div class="flex gap-8 text-center"><div class="flex flex-col"><span class="text-3xl font-bold text-[#FF8A65]" id="resolved-count">0</span><span class="text-xs text-white/60 tracking-wider mt-1">已化解危机</span></div></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="achievements-list">
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    let currentRole = null;
+    let currentUser = null;
+
+    function api(endpoint, options = {}) {
+        const baseUrl = '';
+        return fetch(baseUrl + endpoint, {
+            headers: { 'Content-Type': 'application/json', ...options.headers },
+            ...options
+        }).then(r => r.json());
+    }
+
+    function selectRole(role) {
+        currentRole = role;
+        document.getElementById('login-form').classList.remove('hidden');
+        document.getElementById('login-form').classList.add('flex');
+        
+        const girlAvatar = document.getElementById('girl-avatar');
+        const boyAvatar = document.getElementById('boy-avatar');
+        const greeting = document.getElementById('role-greeting');
+        
+        if (role === 'girl') {
+            greeting.innerHTML = '✨ 欢迎回来，今天也超级爱你';
+            girlAvatar.classList.add('border-white', 'scale-110', 'bg-white/30');
+            boyAvatar.classList.remove('border-white', 'scale-110', 'bg-white/30');
+        } else {
+            greeting.innerHTML = '🌙 加班结束了吗？这里有人在惦记你哦';
+            boyAvatar.classList.add('border-white', 'scale-110', 'bg-white/30');
+            girlAvatar.classList.remove('border-white', 'scale-110', 'bg-white/30');
+        }
+        const pinInput = document.getElementById('pin-input');
+        pinInput.value = '';
+        pinInput.focus();
+    }
+
+    async function handleLogin() {
+        const pinInput = document.getElementById('pin-input');
+        const pin = pinInput.value;
+        
+        const result = await api(`/api/login?role=${currentRole}&pin=${pin}`);
+        
+        if (result.success) {
+            currentUser = result.user;
+            
+            const pinForm = document.getElementById('login-form');
+            pinForm.classList.remove('flex');
+            pinForm.classList.add('hidden');
+            
+            document.getElementById('user-avatar-small').innerText = currentUser.avatar;
+            
+            pinForm.classList.add('hidden');
+            document.getElementById('page-main').classList.remove('hidden');
+            document.getElementById('body-container').classList.remove('items-center', 'justify-center');
+            document.getElementById('body-container').classList.add('items-start');
+            
+            switchTab('home');
+            checkPokes();
+
+        } else {
+            alert('❌ 专属暗号不对哦，再试一次吧！');
+            pinInput.value = '';
+            pinInput.focus();
+        }
+    }
+
+    async function switchTab(tabId) {
+        const views = ['home', 'hub', 'darkroom', 'achievements'];
+        views.forEach(v => {
+            document.getElementById(`view-${v}`).classList.add('hidden');
+            const navLink = document.getElementById(`nav-${v}`);
+            navLink.className = 'cursor-pointer hover:text-white transition-all text-white/70';
+        });
+        
+        document.getElementById(`view-${tabId}`).classList.remove('hidden');
+        document.getElementById(`nav-${tabId}`).className = 'cursor-pointer text-white border-b-2 border-white pb-1 transition-all';
+
+        if (tabId === 'home') await loadHome();
+        if (tabId === 'hub') await loadTopics();
+        if (tabId === 'darkroom') await loadCapsules();
+        if (tabId === 'achievements') await loadAchievements();
+    }
+
+    async function loadHome() {
+        const settings = await api('/api/settings');
+        document.getElementById('time-together').innerText = settings.days_together;
+        document.getElementById('poke-hint').innerText = currentRole === 'girl' ? '(他會收到满屏爱心惊喜!)' : '(如果她戳了你，会收到爱心雨❤️)';
+    }
+
+    async function sendMissYou() {
+        await api('/api/poke', {
+            method: 'POST',
+            body: JSON.stringify({ from_role: currentRole, poke_type: 'miss_you' })
+        });
+        alert('📡 思念信号发射成功！');
+        startHeartRain();
+    }
+
+    async function checkPokes() {
+        const pokes = await api(`/api/pokes/${currentRole}`);
+        if (pokes.length > 0) {
+            startHeartRain();
+        }
+        setInterval(async () => {
+            const newPokes = await api(`/api/pokes/${currentRole}`);
+            if (newPokes.length > 0) {
+                startHeartRain();
+            }
+        }, 5000);
+    }
+
+    async function loadTopics() {
+        const topics = await api('/api/topics');
+        const container = document.getElementById('topics-list');
+        
+        if (topics.length === 0) {
+            container.innerHTML = '<p class="text-white/50 text-center">暂无议题</p>';
+            return;
+        }
+        
+        container.innerHTML = topics.map(t => {
+            const priorityBadge = {
+                'urgent': '🥺 急需顺毛',
+                'critical': '⚠️ 周末开庭',
+                'normal': '⚖️ 待讨论'
+            }[t.priority] || '⚖️ 待讨论';
+            
+            const bgClass = t.status === 'resolved' ? 'opacity-50' : '';
+            const resolvedBtn = t.status === 'resolved' ? '' : `<button onclick="resolveTopic(${t.id})" class="mt-3 text-xs bg-[#FF8A65] px-3 py-1 rounded-lg">✅ 已和好</button>`;
+            
+            return `<div class="bg-black/20 border border-white/10 rounded-2xl p-5 hover:bg-black/30 transition-all ${bgClass}">
+                <span class="text-xs px-2 py-1 bg-white/20 rounded-md">${priorityBadge}</span>
+                <p class="text-sm mt-3 text-white/90">${t.content}</p>
+                ${resolvedBtn}
+            </div>`;
+        }).join('');
+    }
+
+    async function addTopic() {
+        const content = document.getElementById('topic-content').value.trim();
+        const priority = document.getElementById('topic-priority').value;
+        
+        if (!content) {
+            alert('请输入议题内容');
+            return;
+        }
+        
+        await api('/api/topics', {
+            method: 'POST',
+            body: JSON.stringify({ content, priority })
+        });
+        
+        document.getElementById('topic-content').value = '';
+        alert('工单已封存！等待周末复盘 ✉️');
+        loadTopics();
+    }
+
+    async function resolveTopic(id) {
+        const resolution = prompt('请输入和好方式（如：两杯奶茶+火锅）：');
+        if (!resolution) return;
+        
+        await api(`/api/topics/${id}/resolve`, {
+            method: 'POST',
+            body: JSON.stringify({ resolution })
+        });
+        
+        const title = prompt('给这个和好记录起个标题（如："消失的周末"事件）：');
+        if (title) {
+            await api('/api/achievements', {
+                method: 'POST',
+                body: JSON.stringify({ title, original_issue: '', resolution })
+            });
+        }
+        
+        loadTopics();
+    }
+
+    async function loadCapsules() {
+        const capsules = await api('/api/capsules');
+        const container = document.getElementById('capsules-grid');
+        
+        if (capsules.length === 0) {
+            container.innerHTML = '<p class="text-white/50 text-center col-span-2">暂无已解锁的胶囊</p>';
+            return;
+        }
+        
+        container.innerHTML = capsules.map(c => `
+            <div class="polaroid transition-transform hover:scale-105 hover:rotate-1 duration-300">
+                <div class="w-full aspect-video bg-gradient-to-tr from-pink-300 to-orange-200 mb-3 flex items-center justify-center">
+                    ${c.image_url ? `<img src="${c.image_url}" class="w-full h-full object-cover">` : '<span class="text-4xl">🌅</span>'}
+                </div>
+                <p class="text-[#1A237E] text-xs font-medium text-center italic">"${c.content}"</p>
+            </div>
+        `).join('');
+    }
+
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            document.getElementById('capsule-image-preview').innerText = '✅';
+        }
+    }
+
+    async function addCapsule() {
+        const content = document.getElementById('capsule-content').value.trim();
+        const unlockTime = document.getElementById('capsule-unlock').value;
+        
+        if (!content || !unlockTime) {
+            alert('请填写完整内容和解锁时间');
+            return;
+        }
+        
+        await api('/api/capsules', {
+            method: 'POST',
+            body: JSON.stringify({ content, unlock_time: unlockTime })
+        });
+        
+        alert('惊喜已存入！将在指定时间解锁 🔒');
+        document.getElementById('capsule-content').value = '';
+    }
+
+    async function loadAchievements() {
+        const achievements = await api('/api/achievements');
+        const settings = await api('/api/settings');
+        
+        document.getElementById('resolved-count').innerText = settings.resolved_count;
+        
+        const container = document.getElementById('achievements-list');
+        
+        if (achievements.length === 0) {
+            container.innerHTML = '<p class="text-white/50 text-center col-span-3">暂无和好记录</p>';
+            return;
+        }
+        
+        container.innerHTML = achievements.map(a => `
+            <div class="glass-card rounded-2xl p-6 hover:-translate-y-2 transition-transform duration-300">
+                <div class="w-12 h-12 rounded-full bg-[#FF8A65]/20 flex items-center justify-center text-2xl mb-4 badge-glow">🧋</div>
+                <h3 class="text-lg font-medium mb-2 tracking-wide">${a.title}</h3>
+                ${a.original_issue ? `<p class="text-xs text-white/60 line-through">原工单：${a.original_issue}</p>` : ''}
+                ${a.resolution ? `<div class="bg-white/10 p-3 rounded-xl mt-4 border border-white/5"><p class="text-xs text-white/90 mt-1">✅ ${a.resolution}</p></div>` : ''}
+            </div>
+        `).join('');
+    }
+
+    function startHeartRain() {
+        for (let i = 0; i < 60; i++) {
+            setTimeout(createFallingHeart, i * 30);
+        }
+    }
+
+    function createFallingHeart() {
+        const heart = document.createElement('div');
+        heart.className = 'heart-rain text-4xl';
+        heart.innerText = ['🧡', '❤️', '💖'][Math.floor(Math.random() * 3)];
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.animationDuration = (Math.random() * 1.5 + 2) + 's';
+        heart.style.opacity = (Math.random() * 0.5 + 0.5);
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 4000);
+    }
+</script>
+</body>
+</html>
