@@ -94,6 +94,6 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`🎀 Our Secret Zone 服务已启动: http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🎀 Our Secret Zone 服务已启动: http://0.0.0.0:${PORT}`);
 });
