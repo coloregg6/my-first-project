@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #1A237E;
+  --color-foreground: #ffffff;
+  --color-primary: #FF8A65;
+  --color-primary-foreground: #ffffff;
+  --color-muted: rgba(255, 255, 255, 0.7);
+  --color-card: rgba(255, 255, 255, 0.1);
+  --color-card-foreground: #ffffff;
+  --color-border: rgba(255, 255, 255, 0.2);
+  --color-accent: #1A237E;
+}
+
+body {
+  background: linear-gradient(to bottom, #1A237E, #FF8A65);
+  min-height: 100vh;
+  color: var(--color-foreground);
+  font-family: system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: white;
+  color: #FF8A65;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-input {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.badge-glow {
+  animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+  from { box-shadow: 0 0 10px rgba(255, 138, 101, 0.2); }
+  to { box-shadow: 0 0 20px rgba(255, 138, 101, 0.6); }
+}
+
+.polaroid {
+  background: white;
+  padding: 10px 10px 25px 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  transform: rotate(-2deg);
+}
+
+.heart-rain {
+  position: fixed;
+  top: -50px;
+  pointer-events: none;
+  z-index: 9999;
+  animation: heartFall 3s linear forwards;
+}
+
+@keyframes heartFall {
+  0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+}
+
+.home-time-card {
+  background: linear-gradient(135deg, rgba(26, 35, 126, 0.6) 0%, rgba(255, 138, 101, 0.6) 100%);
+  border: 1px solid rgba(255,255,255,0.2);
+}
