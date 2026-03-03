@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const DB_FILE = path.join(__dirname, 'database.json');
+const UPLOADS_DIR = path.join(__dirname, 'public', 'uploads');
 
 let db = {
   users: [],
@@ -26,13 +27,20 @@ function saveDB() {
   fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
 }
 
+function ensureUploadsDir() {
+  if (!fs.existsSync(UPLOADS_DIR)) {
+    fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+  }
+}
+
 function initDatabase() {
   loadDB();
+  ensureUploadsDir();
   
   if (db.users.length === 0) {
     db.users = [
-      { id: 1, role: 'girl', pin: '1125', name: 'SN', avatar: '👩🏻' },
-      { id: 2, role: 'boy', pin: '1125', name: 'Mainland', avatar: '🧑🏻‍💻' }
+      { id: 1, role: 'girl', pin: '1125', name: '彩彩', avatar: '👩🏻' },
+      { id: 2, role: 'boy', pin: '1125', name: '彭彭', avatar: '🧑🏻‍💻' }
     ];
   }
   
@@ -75,14 +83,16 @@ function getUnreadPokes(role) {
   return pokes;
 }
 
-function addTopic(content, priority = 'normal') {
+function addTopic(content, priority, createdBy) {
   const topic = {
     id: Date.now(),
     content,
     priority,
     status: 'pending',
+    created_by: createdBy,
     created_at: new Date().toISOString(),
-    resolved_at: null
+    resolved_at: null,
+    resolution: null
   };
   db.topics.push(topic);
   saveDB();
@@ -93,23 +103,25 @@ function getTopics() {
   return [...db.topics].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 }
 
-function resolveTopic(id, resolution) {
+function resolveTopic(id, resolution, resolvedBy) {
   const topic = db.topics.find(t => t.id === id);
   if (topic) {
     topic.status = 'resolved';
     topic.resolution = resolution;
+    topic.resolved_by = resolvedBy;
     topic.resolved_at = new Date().toISOString();
     db.settings.resolved_count = (parseInt(db.settings.resolved_count || '0') + 1).toString();
     saveDB();
   }
 }
 
-function addCapsule(content, imageUrl, unlockTime) {
+function addCapsule(content, imagePath, unlockTime, createdBy) {
   const capsule = {
     id: Date.now(),
     content,
-    image_url: imageUrl || '',
+    image_path: imagePath || '',
     unlock_time: unlockTime,
+    created_by: createdBy,
     created_at: new Date().toISOString(),
     read: 0
   };
@@ -118,8 +130,8 @@ function addCapsule(content, imageUrl, unlockTime) {
   return capsule;
 }
 
-function getCapsules() {
-  return [...db.capsules];
+function getAllCapsules() {
+  return [...db.capsules].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 }
 
 function getUnlockedCapsules() {
@@ -129,13 +141,15 @@ function getUnlockedCapsules() {
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 }
 
-function addAchievement(title, originalIssue, resolution) {
+function addAchievement(title, originalIssue, resolution, resolvedBy, topicCreatedAt, resolvedAt) {
   const achievement = {
     id: Date.now(),
     title,
     original_issue: originalIssue,
     resolution,
-    created_at: new Date().toISOString()
+    resolved_by: resolvedBy,
+    created_at: topicCreatedAt || new Date().toISOString(),
+    resolved_at: resolvedAt || new Date().toISOString()
   };
   db.achievements.push(achievement);
   saveDB();
@@ -150,6 +164,11 @@ function verifyUser(role, pin) {
   return db.users.find(u => u.role === role && u.pin === pin);
 }
 
+function getUserName(role) {
+  const user = db.users.find(u => u.role === role);
+  return user ? user.name : role;
+}
+
 module.exports = {
   initDatabase,
   getSetting,
@@ -160,9 +179,11 @@ module.exports = {
   getTopics,
   resolveTopic,
   addCapsule,
-  getCapsules,
+  getAllCapsules,
   getUnlockedCapsules,
   addAchievement,
   getAchievements,
-  verifyUser
+  verifyUser,
+  getUserName,
+  UPLOADS_DIR
 };
